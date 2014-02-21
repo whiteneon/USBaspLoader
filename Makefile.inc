@@ -6,7 +6,7 @@
 # License: GNU GPL v2 (see License.txt)
 
 F_CPU = 16000000
-DEVICE = atmega8
+DEVICE = atmega328p
 
 # where the updating firmware should be located (starting address)
 FLASHADDRESS = 0x0000
@@ -23,7 +23,7 @@ DANGEROUS=0
 
 # PROGRAMMER contains AVRDUDE options to address your programmer
 # PROGRAMMER = -c pony-stk200
-PROGRAMMER = -c usbasp
+PROGRAMMER = -c usbtiny
 
 #  since USBaspLoader supports HAVE_BLB11_SOFTW_LOCKBIT...
 LOCKOPT = -U lock:w:0x3f:m
@@ -119,8 +119,8 @@ DEFINES_168             = -DCONFIG_NO__FLASH_BYTE_READACCESS -DCONFIG_NO__HAVE_R
 endif
 
 
-
-FUSEOPT_328             = -U lfuse:w:0xd7:m -U hfuse:w:0xd0:m -U efuse:w:0x04:m
+###Changed efuse to enable BOD @ 2.7V & !4.3V
+FUSEOPT_328             = -U lfuse:w:0xd7:m -U hfuse:w:0xd0:m -U efuse:w:0x05:m
 BOOTLOADER_ADDRESS_328  = 0x7000
 DEFINES_328             = #-DEMPTY
 
