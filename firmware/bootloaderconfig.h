@@ -89,6 +89,15 @@ these macros are defined, the boot loader usees them.
 /* 
  * jumper is connected to this port
  */
+ 
+#ifndef LED_PORT
+  #define LED_PORT		USB_CFG_IOPORTNAME
+#endif
+/*
+* Bootloader indicator LED port
+*/
+
+
 #ifndef JUMPER_BIT
   /* This is Revision 3 and later (where PD6 and PD7 were swapped */
   #define JUMPER_BIT           6       /* Rev.2 and previous was 7 */
@@ -97,6 +106,14 @@ these macros are defined, the boot loader usees them.
  * jumper is connected to this bit in port "JUMPER_PORT", active low
  */
 
+
+#ifndef LED_BIT
+  #define LED_BIT              5
+#endif
+/*
+* Bootloader indicator LED bit
+*/
+ 
 #define USB_CFG_CLOCK_KHZ       (F_CPU/1000)
 /* Clock rate of the AVR in MHz. Legal values are 12000, 16000 or 16500.
  * The 16.5 MHz version of the code requires no crystal, it tolerates +/- 1%
@@ -342,8 +359,18 @@ these macros are defined, the boot loader usees them.
 
 static inline void  bootLoaderInit(void)
 {
-    PIN_DDR(JUMPER_PORT)  = 0;
-    PIN_PORT(JUMPER_PORT) = (1<< PIN(JUMPER_PORT, JUMPER_BIT)); /* activate pull-up */
+    /* Deactivated by following 4 lines to activate status LED
+	PIN_DDR(JUMPER_PORT)  = 0;
+    PIN_PORT(JUMPER_PORT) = (1<< PIN(JUMPER_PORT, JUMPER_BIT)); // activate pull-up 
+	*/
+	
+   PIN_DDR(JUMPER_PORT) &= ~_BV(JUMPER_BIT);
+   PIN_DDR(LED_PORT) |= _BV(LED_BIT);
+   PIN_PORT(JUMPER_PORT) |= _BV(JUMPER_BIT);
+   PIN_PORT(LED_PORT) |= _BV(LED_BIT);
+   //PIN_DDR(D) = 0b00100000;
+   //PIN_PORT(D) = 0b01100000;
+   
 
 //     deactivated by Stephan - reset after each avrdude op is annoing!
 //     if(!(MCUCSR & (1 << EXTRF)))    /* If this was not an external reset, ignore */
@@ -354,7 +381,11 @@ static inline void  bootLoaderInit(void)
 
 static inline void  bootLoaderExit(void)
 {
-    PIN_PORT(JUMPER_PORT) = 0;		/* undo bootLoaderInit() changes */
+	PIN_PORT(LED_PORT) = 0;
+    PIN_PORT(JUMPER_PORT) = 0;
+	PIN_DDR(LED_PORT) = 0;
+	PIN_DDR(JUMPER_PORT) = 0;		/* undo bootLoaderInit() changes */
+	
 }
 
 #define bootLoaderCondition()		((PIN_PIN(JUMPER_PORT) & (1 << PIN(JUMPER_PORT, JUMPER_BIT))) == 0)
